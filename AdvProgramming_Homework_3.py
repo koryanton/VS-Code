@@ -17,15 +17,13 @@ sift = cv.SIFT_create()
 
 # List of query images and their names
 query_images = [
-    ('chisel.png', 'Chisel'),  # Replace with your query image filenames and names
-    ('RPi_Pico.png', 'Pico'),
-    ('plug.png', 'Plug'),
-]
+    ('chisel.png'  , 'Chisel'),  # Replace with your query image filenames and names
+    ('RPi_Pico.png', 'Pico'  ),
+    ('plug.png'    , 'Plug'  ) ]
 
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
-
     # Check if the video has ended
     if not ret:
         break
@@ -37,7 +35,6 @@ while True:
         # Find keypoints and descriptors in the frame and query image
         kp1, des1 = sift.detectAndCompute(img_query, None)
         kp2, des2 = sift.detectAndCompute(frame, None)
-
         # Algorithm Selection
         FLANN_INDEX_KDTREE = 1
         # Get index parameters as a dictionary
@@ -49,7 +46,7 @@ while True:
         # Get KNN matches for K value of 2
         matches = flann.knnMatch(des1, des2, k=2)
 
-        # Store all the good matches as per Lowe's ratio test
+        # Store all the good matches
         good = []
         for m, n in matches:
             if m.distance < 0.75 * n.distance:
@@ -59,28 +56,20 @@ while True:
             # Get source and destination points and reshape arrays
             src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
             dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-            # Find homography on source/destination points
+            # Find homography on destination points
             M, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 5.0)
-
-            # Matched mask to list
+            # Matched mask list
             matchesMask = mask.ravel().tolist()
             # Get height, width, and depth of the frame
             h, w, d = img_query.shape
-
             # Reshape points array to match height and width
             pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
-
             dst = cv.perspectiveTransform(pts, M)
             # Draw lines and set color
-            img_polylines = cv.polylines(frame, [np.int32(dst)], True, (0, 0, 255), 3, cv.LINE_AA)
+            img_polylines = cv.polylines(frame, [np.int32(dst)], True, (255, 200, 0), 3, cv.LINE_AA)
 
-
-    # Show polylines
+    # Show frames
     cv.imshow("Matching Image", img_polylines)
-
-    # Display the video frame with matched features
-    # cv.imshow("Video Frame", frame)
-
     # Exit when 'q' is pressed
     if cv.waitKey(1) & 0xFF == ord('q'):
         break
