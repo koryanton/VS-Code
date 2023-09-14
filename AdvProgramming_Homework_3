@@ -1,55 +1,83 @@
 import numpy as np
-import cv2
+import cv2 as cv
 import sys
 
 
-img = cv2.imread( cv2.samples.findFile("starry_night.jpg") )
+# Part K - Feature Matching Sift model
 
-if img is None:
-    sys.exit("Could not read the image.")
+#number of features to match
+MIN_MATCH_COUNT = 10
+#read in original image
+img = cv.imread( 'box_in_scene.png' )
+#read in query image
+img_query = cv.imread('box_3.png') # query image
+#if no image return
+if img_query is None:
+    print('Query Image Does Not Exist')
+    exit()
 
-#print total number of elements
-print('Image Size:', img.size )
-#print the shape of the array row,col,z
-print('Image Shape:', img.shape )
+#Show Images
+cv.imshow("object", img_query)
+cv.imshow("scene image",img)
 
-#Display Image
-cv2.imshow( "Image Starry Night", img )
+key = cv.waitKey(0)
 
-#Waitkey to not close the window
-key = cv2.waitKey(0)
+#detect the feature, SIFT detector, Scale-Invariant Feature Transform
+sift = cv.SIFT.create()
 
-#ord returns the ASCII/Unicode integer value of the input
-if( key == ord('s') ):
-    cv2.imwrite('starry_save.png', img)
+# find the keypoints and descriptors with SIFT
+kp1, des1 = sift.detectAndCompute(img_query, None)
+kp2, des2 = sift.detectAndCompute(img, None)
 
-area_of_interest = img[10:131, 10:131]
+#Algorithm Selection
+FLANN_INDEX_KDTREE = 1
+#get index parameters as dictionary
+index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+#get search parameters
+search_params = dict(checks = 50)
+#Use flann based matcher
+flann = cv.FlannBasedMatcher( index_params, search_params )
+#get KNN matches for K value of 2
+matches = flann.knnMatch(des1, des2, k=2)
+# store all the good matches as per Lowe's ratio test.
+good = []
+for m, n in matches:
+    if m.distance < 0.7 * n.distance:
+        good.append( m )
 
-#replace section with area of interest    
-img[100:221, 100:221] = area_of_interest
+if len(good) > MIN_MATCH_COUNT:
+    #Get source and destination points and reshape array
+    src_pts = np.float32( [ kp1[m.queryIdx].pt for m in good ] ).reshape(-1,1,2)
+    dst_pts = np.float32( [ kp2[m.trainIdx].pt for m in good ] ).reshape(-1,1,2)
+    #find homography on source/destination points
+    M, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 5.0)
+    
+    #matched mast to list
+    matchesMask = mask.ravel().tolist()
+    #get height width and depth
+    h,w,d = img_query.shape
 
-print('Share of area of interest', area_of_interest.shape)
+    #reshape points array to match height width
+    pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
 
-#Display Image
-cv2.imshow( "Image Area of Interest Replace", img )
+    dst = cv.perspectiveTransform(pts ,M)
+    #draw lines and set color
+    img_polylines = cv.polylines(img, [np.int32(dst)], True, 255, 3, cv.LINE_AA)
+    
+    #show polylines
+    cv.imshow("matching image",img_polylines)
 
-#Waitkey to not close the window
-key = cv2.waitKey(0)
+    key = cv.waitKey(0)
+    
+    # draw matches in green color
+    draw_params = dict(matchColor = (0, 255, 0), 
+                   singlePointColor = None,
+                   matchesMask = matchesMask, # draw only inliers
+                   flags = 2)
 
-#changing color scheme
-
-gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-#Display Image
-cv2.imshow( "Gray Image", gray_img )
-
-#Waitkey to not close the window
-key = cv2.waitKey(0)
-
-import_gray_img = cv2.imread( 'starry_night.jpg', cv2.IMREAD_GRAYSCALE )
-
-#Display Image
-cv2.imshow( "Gray Image", import_gray_img )
-
-#Waitkey to not close the window
-key = cv2.waitKey(0)
+    #Get Matched Image using drawMatches
+    img_matched = cv.drawMatches( img_query, kp1, img, kp2, good, None, **draw_params )
+    #display matched features
+    cv.imshow( "Matched Feature Items", img_matched )
+    #pause windows until close
+    key = cv.waitKey(0)
