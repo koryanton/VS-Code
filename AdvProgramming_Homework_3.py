@@ -13,7 +13,7 @@ if not cap.isOpened():
     exit()
 
 # Create a SIFT object
-sift = cv.SIFT_create()
+sift = cv.SIFT_create() # type: ignore
 
 # List of query images and their names
 query_images = [
