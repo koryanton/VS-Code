@@ -7455,3 +7455,14 @@ build/samples/tapi/CMakeFiles/opencv_samples_tapi.dir/progress.make
 build/tmp/setup_vars.sh
 build/unix-install/OpenCVConfig-version.cmake
 build/unix-install/OpenCVConfig.cmake
+.DS_Store
+a.out
+opencv
+build/.DS_Store
+build/CMakeFiles/Progress/count.txt
+dist/.DS_Store
+.DS_Store
+a.out
+opencv
+build/.DS_Store
+dist/.DS_Store
