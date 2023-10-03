@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/ericsaldana/Documents/VS Code/Assignment_4 Adv_Prg/build",
+  "command": "/usr/bin/clang++   -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/Assignment_4.dir/main.cpp.o -c \"/Users/ericsaldana/Documents/VS Code/Assignment_4 Adv_Prg/main.cpp\"",
+  "file": "/Users/ericsaldana/Documents/VS Code/Assignment_4 Adv_Prg/main.cpp",
+  "output": "CMakeFiles/Assignment_4.dir/main.cpp.o"
+}
+]
