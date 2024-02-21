@@ -80,6 +80,8 @@ while i <= 5000:
 
     Q_history.append(Q.copy())
 
+print('s_history:' + str(s_history))
+
 # Extract Q-values for plotting
 Q_9_1 = [Q_history[j][8, 0] for j in range(len(Q_history))]
 Q_9_2 = [Q_history[j][8, 1] for j in range(len(Q_history))]
@@ -96,15 +98,14 @@ plt.plot(range(1, len(Q_history) + 1), Q_9_3, label='Q(9,3)')
 plt.plot(range(1, len(Q_history) + 1), Q_9_4, label='Q(9,4)')
 plt.xlabel('Iterations')
 plt.ylabel('Q-values')
-plt.title('Q-values history curve')
-plt.legend()
+plt.title('Q-values over Training Iterations')
 plt.grid(True)
 
 
 # Extract x and y coordinates from s_history
-x_coords = [state % 4 for state in s_history]  
-y_coords = [state // 4 for state in s_history]  
-
+x_coords = [state % 4 for state in s_history]  # Modulus 4 gives the x-coordinate
+y_coords = [state // 4 for state in s_history]  # Integer division by 4 gives the y-coordinate
+# print('x-coord:'+ str(x_coords)+' y-coord'+ str(y_coords))
 # Plot the path taken
 plt.figure(figsize=(8, 6))
 plt.plot(x_coords, y_coords, marker='o', linestyle='-', color='b')
