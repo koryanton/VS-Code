@@ -1,10 +1,10 @@
-import pandas as pd 
+
 import numpy as np
 import cv2
 import matplotlib.pylab as plt
 
 # # SAMPLING
-labels = ['512x512', '256x256', '128x128', '64x64','32x32','1024x1024']
+labels = ['512x512', '256x256', '128x128', '64x64','32x32','Original Image']
 res_factor = 1
 
 # img_mpl = plt.imread('rose.jpg')
@@ -25,15 +25,15 @@ plt.savefig('roses.jpg')
 plt.show()
 
 # QUANTIZATION
-
+img_cv2 = 0
 img_cv2 = cv2.imread('rose.jpg', cv2.IMREAD_GRAYSCALE)
 gray_level = 256
 fig, axs = plt.subplots(2, 4, figsize=(12, 8))
 for i, ax in enumerate(axs.flat):
     new_image = (img_cv2 // gray_level) * gray_level
     ax.imshow(new_image, cmap='gray')
-    ax.axis('off')
     ax.set_title('Gray Level: ' + str(int(gray_level)))
+    ax.axis('off')
     gray_level = gray_level/2
 
 plt.tight_layout()
