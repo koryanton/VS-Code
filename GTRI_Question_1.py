@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import csv
 
 class RRT:
-    def __init__(self, start, goal, obstacles, step_size=1, max_iter=1000, goal_sample_rate=0.1):
+    def __init__(self, start, goal, obstacles, step_size=1, max_iter=1500, goal_sample_rate = 0.1):
         self.start = start
         self.goal = goal
         self.obstacles = obstacles
